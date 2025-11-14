@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrusel 3 imágenes con GSAP Loop Infinito</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: radial-gradient(circle at center, #f7f3ef, #e9dfd3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      font-family: system-ui, sans-serif;
+    }
+
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      max-width: 800px;
+      margin: 60px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .carousel {
+      position: relative;
+      width: 80%;
+      max-width: 900px;
+      height: 420px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1200px;
+    }
+
+    .carousel img {
+      position: absolute;
+      width: 250px;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      transition: transform 0.4s ease;
+    }
+    
+    .carousel-container {
+      mask-image: radial-gradient(circle at center, black 50%, transparent 100%);
+      -webkit-mask-image: radial-gradient(circle at center, black 50%, transparent 100%);
+    }
+
+    button.arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.8);
+      border: none;
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 3;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    button.arrow:hover {
+      background: #000;
+      color: white;
+    }
+
+    .arrow.left { left: 30px; }
+    .arrow.right { right: 30px; }
+  </style>
+</head>
+<body>
+    <div class="carousel-container">
+        <div class="carousel">
+            <button class="arrow left">&#10094;</button>
+
+            <img src="https://picsum.photos/id/1005/500/700" alt="img1">
+            <img src="https://picsum.photos/id/1011/500/700" alt="img2">
+            <img src="https://picsum.photos/id/1015/500/700" alt="img3">
+            <img src="https://picsum.photos/id/1020/500/700" alt="img4">
+            <img src="https://picsum.photos/id/1024/500/700" alt="img5">
+            <img src="https://picsum.photos/id/1035/500/700" alt="img6">
+
+            <button class="arrow right">&#10095;</button>
+        </div>
+    </div>
+  <script>
+    const images = gsap.utils.toArray(".carousel img");
+    let current = 0;
+    let autoPlay;
+
+    // Función para mostrar el carrusel
+    function showCarousel() {
+      images.forEach((img, i) => {
+        const offset = (i - current + images.length) % images.length;
+
+        if (offset === 0) {
+          // Imagen del centro
+          gsap.to(img, {
+            x: 0,
+            scale: 1.2,
+            opacity: 1,
+            zIndex: 3,
+            duration: 0.8,
+            ease: "power3.out"
+          });
+        } else if (offset === 1 || offset === images.length - 1) {
+          // Laterales visibles
+          gsap.to(img, {
+            x: offset === 1 ? 260 : -260,
+            scale: 0.9,
+            opacity: 0.7,
+            zIndex: 2,
+            duration: 0.8,
+            ease: "power3.out"
+          });
+        } else {
+          // Imágenes ocultas
+          gsap.to(img, {
+            x: offset > 1 && offset < images.length - 1 ? 600 : -600,
+            scale: 0.8,
+            opacity: 0,
+            zIndex: 1,
+            duration: 0.8,
+            ease: "power3.out"
+          });
+        }
+      });
+    }
+
+    // Funciones para cambiar imágenes
+    function next() {
+      current = (current + 1) % images.length;
+      showCarousel();
+    }
+
+    function prev() {
+      current = (current - 1 + images.length) % images.length;
+      showCarousel();
+    }
+
+    // Autoplay infinito
+    function startAutoPlay() {
+      autoPlay = setInterval(next, 3500); // cada 3.5s
+    }
+
+    function stopAutoPlay() {
+      clearInterval(autoPlay);
+    }
+
+    // Eventos
+    document.querySelector(".arrow.right").addEventListener("click", () => {
+      stopAutoPlay();
+      next();
+      startAutoPlay();
+    });
+
+    document.querySelector(".arrow.left").addEventListener("click", () => {
+      stopAutoPlay();
+      prev();
+      startAutoPlay();
+    });
+
+    const carousel = document.getElementById("carousel");
+    carousel.addEventListener("mouseenter", stopAutoPlay);
+    carousel.addEventListener("mouseleave", startAutoPlay);
+
+    // Inicializar
+    showCarousel();
+    startAutoPlay();
+  </script>
+
+</body>
+</html>
